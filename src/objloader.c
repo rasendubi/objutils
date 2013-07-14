@@ -91,6 +91,8 @@ static void strv_remove_empty(gchar **tokens) {
 	for (gchar **token = tokens; *token; ++token)
 		if (**token)
 			tokens[new_pos++] = *token;
+		else
+			free(*token);
 	tokens[new_pos] = NULL;
 }
 
