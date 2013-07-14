@@ -6,8 +6,12 @@ find_package(PkgConfig REQUIRED)
 pkg_search_module(GLIB2 REQUIRED glib-2.0)
 include_directories(${GLIB2_INCLUDE_DIRS})
 
-set(objutils_SRC src/objloader.c)
-set(testobjloader_SRC tests/objloadertest.c)
+set(objutils_SRC 
+	src/objloader.c
+	src/objmodel.c)
+set(testobjloader_SRC 
+	tests/objloadertest.c
+	src/objmodel.c)
 
 add_library(objutils SHARED ${objutils_SRC})
 target_link_libraries(objutils ${GLIB2_LIBRARIES})

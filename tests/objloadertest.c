@@ -2,6 +2,8 @@
 #include <stdio.h>
 
 int main(void) {
-	load_obj("rapide.obj");
+	obj_model *model = load_obj("rapide.obj");
+	if (model)
+		obj_model_free(model);
 }
 
