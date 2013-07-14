@@ -8,14 +8,15 @@ include_directories(${GLIB2_INCLUDE_DIRS})
 
 set(objutils_SRC 
 	src/objloader.c
-	src/objmodel.c)
-set(testobjloader_SRC 
-	tests/objloadertest.c
-	src/objmodel.c)
-
+	src/objmodel.c
+)
 add_library(objutils SHARED ${objutils_SRC})
 target_link_libraries(objutils ${GLIB2_LIBRARIES})
 
+set(testobjloader_SRC 
+	tests/objloadertest.c
+	src/objmodel.c
+)
 add_executable(testobjloader ${testobjloader_SRC})
 target_link_libraries(testobjloader ${GLIB2_LIBRARIES})
 
