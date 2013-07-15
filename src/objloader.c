@@ -38,6 +38,14 @@ obj_model *load_obj(const char *path) {
 }
 
 static bool parse_line(obj_model *model, const gchar *line) {
+	static const struct {
+		char *command;
+		bool (*handler)(obj_model *, gchar **);
+	} handlers[] = {
+		"v", handle_geometric_vertex
+	};
+	static const size_t n_handlers = sizeof(handlers)/sizeof(handlers[0]);
+
 	gchar **tokens = g_strsplit_set(line, " \t", 0);
 	strv_remove_empty(tokens);
 
@@ -49,11 +57,12 @@ static bool parse_line(obj_model *model, const gchar *line) {
 		ret = true; // Empty line
 	else if (command[0] == '#')
 		ret = true; // This is comment, do nothing
-	else if (strcmp(command, "v") == 0)
-		ret = handle_geometric_vertex(model, tokens);
 	else {
-		fprintf(stderr, "Can't handle command %s\n", command);
-		ret = false;
+		for (size_t i = 0; i < n_handlers; ++i)
+			if (strcmp(handlers[i].command, command) == 0) {
+				ret = handlers[i].handler(model, tokens);
+				break;
+			}
 	}
 
 	g_strfreev(tokens);
