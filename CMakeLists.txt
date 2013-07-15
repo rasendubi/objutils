@@ -26,3 +26,11 @@ set(testload_SRC
 add_executable(testload ${testload_SRC})
 target_link_libraries(testload objutils)
 
+enable_testing()
+
+macro(add_glib_test EXE TEST_NAME)
+	add_test(${TEST_NAME} ${EXE} -p ${TEST_NAME})
+endmacro(add_glib_test)
+
+add_glib_test(testobjloader /objloader/vertices/geometric)
+
