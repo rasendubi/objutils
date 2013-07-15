@@ -8,9 +8,11 @@
 #include <glib/gstdio.h>
 
 static bool parse_line(obj_model *model, const gchar *line);
+
 static bool handle_geometric_vertex(obj_model *model, gchar **tokens);
 static bool handle_texture_vertex(obj_model *model, gchar **tokens);
 static bool handle_vertex_normal(obj_model *model, gchar **tokens);
+static bool handle_parameter_point(obj_model *model, gchar **tokens);
 
 static size_t strv_len(gchar **tokens);
 static void strv_remove_empty(gchar **tokens);
@@ -46,7 +48,8 @@ static bool parse_line(obj_model *model, const gchar *line) {
 	} handlers[] = {
 		"v",  handle_geometric_vertex,
 		"vt", handle_texture_vertex,
-		"vn", handle_vertex_normal
+		"vn", handle_vertex_normal,
+		"vp", handle_parameter_point
 	};
 	static const size_t n_handlers = sizeof(handlers)/sizeof(handlers[0]);
 
@@ -128,6 +131,25 @@ static bool handle_vertex_normal(obj_model *model, gchar **tokens) {
 	normal.k = strtod(tokens[3], NULL);
 
 	g_array_append_val(model->vertex_normals, normal);
+
+	return true;
+}
+
+static bool handle_parameter_point(obj_model *model, gchar **tokens) {
+	size_t n_args = strv_len(tokens) - 1;
+	if (n_args < 2 || n_args > 3) {
+		fprintf(stderr, "Can't handle 'vp' with %zu args\n",
+				n_args);
+		return false;
+	}
+
+	parameter_point param = { .w = 1.0 };
+	param.u = strtod(tokens[1], NULL);
+	param.v = strtod(tokens[2], NULL);
+	if (n_args > 2)
+		param.w = strtod(tokens[3], NULL);
+
+	g_array_append_val(model->parameter_points, param);
 
 	return true;
 }
