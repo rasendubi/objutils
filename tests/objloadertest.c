@@ -12,12 +12,14 @@ void test_geometric_vertices(void) {
 	char *test_data[] = {
 		"v 1.02 3 5.06",
 		" v -1.02  4.15 7.20 10.5",
-		" \t v \t 2.01 5.06   -17.3 14\t  "
+		" \t v \t 2.01 5.06   -17.3 14\t  ",
+		"v  2e-05 3.4e15  5.0e-007"
 	};
 	vertex answer[] = {
 		{ 1.02, 3, 5.06, 1.0 },
 		{ -1.02, 4.15, 7.20, 10.5 },
-		{ 2.01, 5.06, -17.3, 14 }
+		{ 2.01, 5.06, -17.3, 14 },
+		{ 2e-5, 3.4e15, 5.0e-7, 1.0 }
 	};
 	const unsigned int N = sizeof(test_data)/sizeof(test_data[0]);
 
