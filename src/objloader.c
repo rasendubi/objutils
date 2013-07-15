@@ -72,11 +72,10 @@ static bool parse_line(obj_model *model, const gchar *line) {
 }
 
 static bool handle_geometric_vertex(obj_model *model, gchar **tokens) {
-	size_t len = strv_len(tokens);
-
-	if (len < 4 || len > 5) {
+	size_t n_args = strv_len(tokens) - 1;
+	if (n_args < 3 || n_args > 4) {
 		fprintf(stderr, "Can't handle 'v' with %zu args\n",
-				len - 1);
+				n_args);
 		return false;
 	}
 
@@ -84,7 +83,7 @@ static bool handle_geometric_vertex(obj_model *model, gchar **tokens) {
 	vertex.x = strtod(tokens[1], NULL);
 	vertex.y = strtod(tokens[2], NULL);
 	vertex.z = strtod(tokens[3], NULL);
-	if (len == 5)
+	if (n_args == 4)
 		vertex.w = strtod(tokens[4], NULL);
 
 	g_array_append_val(model->geometric_vertices, vertex);
