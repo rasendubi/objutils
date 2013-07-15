@@ -11,7 +11,7 @@ void assert_vertex_eq(const vertex v1, const vertex v2) {
 void test_geometric_vertices(void) {
 	char *test_data[] = {
 		"v 1.02 3 5.06",
-		"v -1.02  4.15 7.20 10.5",
+		" v -1.02  4.15 7.20 10.5",
 		" \t v \t 2.01 5.06   -17.3 14\t  "
 	};
 	vertex answer[] = {

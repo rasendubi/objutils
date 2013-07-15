@@ -36,10 +36,7 @@ obj_model *load_obj(const char *path) {
 	return model;
 }
 
-static bool parse_line(obj_model *model, const gchar *line_in) {
-	const gchar *line = line_in;
-	while (*line == ' ' || *line == '\t')
-		++line;
+static bool parse_line(obj_model *model, const gchar *line) {
 	gchar **tokens = g_strsplit_set(line, " \t", 0);
 	strv_remove_empty(tokens);
 
