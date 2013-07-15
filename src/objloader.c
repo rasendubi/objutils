@@ -9,6 +9,7 @@
 
 static bool parse_line(obj_model *model, const gchar *line);
 static bool handle_geometric_vertex(obj_model *model, gchar **tokens);
+static bool handle_texture_vertex(obj_model *model, gchar **tokens);
 
 static size_t strv_len(gchar **tokens);
 static void strv_remove_empty(gchar **tokens);
@@ -42,7 +43,8 @@ static bool parse_line(obj_model *model, const gchar *line) {
 		char *command;
 		bool (*handler)(obj_model *, gchar **);
 	} handlers[] = {
-		"v", handle_geometric_vertex
+		"v",  handle_geometric_vertex,
+		"vt", handle_texture_vertex
 	};
 	static const size_t n_handlers = sizeof(handlers)/sizeof(handlers[0]);
 
@@ -86,6 +88,27 @@ static bool handle_geometric_vertex(obj_model *model, gchar **tokens) {
 		vertex.w = strtod(tokens[4], NULL);
 
 	g_array_append_val(model->geometric_vertices, vertex);
+
+	return true;
+}
+
+static bool handle_texture_vertex(obj_model *model, gchar **tokens) {
+	size_t n_args = strv_len(tokens) - 1;
+	if (n_args < 1 || n_args > 3) {
+		fprintf(stderr, "Can't handle 'vt' with %zu args\n",
+				n_args);
+		return false;
+	}
+
+	texture_vertex vertex = (texture_vertex){};
+
+	vertex.u = strtod(tokens[1], NULL);
+	if (n_args > 1)
+		vertex.v = strtod(tokens[2], NULL);
+	if (n_args > 2)
+		vertex.w = strtod(tokens[3], NULL);
+
+	g_array_append_val(model->texture_vertices, vertex);
 
 	return true;
 }
