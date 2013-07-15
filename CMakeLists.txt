@@ -20,3 +20,9 @@ set(testobjloader_SRC
 add_executable(testobjloader ${testobjloader_SRC})
 target_link_libraries(testobjloader ${GLIB2_LIBRARIES})
 
+set(testload_SRC
+	tests/testload.c
+)
+add_executable(testload ${testload_SRC})
+target_link_libraries(testload objutils)
+
