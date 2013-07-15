@@ -28,7 +28,7 @@ obj_model *load_obj(const char *path) {
 	obj_model *model = obj_model_new();
 
 	bool ret = true;
-	for (gchar **curline = lines; ret && *curline; ++curline) {
+	for (gchar **curline = lines; *curline; ++curline) {
 		ret = parse_line(model, *curline);
 	}
 
