@@ -154,6 +154,44 @@ void test_vertex_normals(void) {
 	obj_model_free(model);
 }
 
+void assert_parameter_point_equal(const parameter_point p1,
+		const parameter_point p2) {
+	g_assert_cmpfloat(p1.u, ==, p2.u);
+	g_assert_cmpfloat(p1.v, ==, p2.v);
+	g_assert_cmpfloat(p1.w, ==, p2.w);
+}
+
+void test_parameter_points(void) {
+	char *test_data[] = {
+		"vp 1.2 3 4",
+		"vp  2  -4e-14"
+	};
+	parameter_point answer[] = {
+		{ 1.2, 3, 4 },
+		{ 2, -4e-14, 1.0}
+	};
+
+	char *bad_data[] = {
+		"vp",
+		"vp 2",
+		"vp 3 4 5 6",
+	};
+
+	obj_model *model = obj_model_new();
+
+	assert_parse(model, test_data);
+	assert_parse_fail(model, bad_data);
+
+	g_assert_cmpuint(obj_n_parameter_points(model), ==,
+			array_size(answer));
+	for (int i = 0; i < array_size(answer); ++i) {
+		assert_parameter_point_equal(obj_parameter_point(model, i),
+				answer[i]);
+	}
+
+	obj_model_free(model);
+}
+
 int main(int argc, char *argv[]) {
 	g_test_init(&argc, &argv, NULL);
 	g_test_add_func("/objloader/vertices/geometric",
@@ -162,6 +200,8 @@ int main(int argc, char *argv[]) {
 			test_texture_vertices);
 	g_test_add_func("/objloader/vertices/normals",
 			test_vertex_normals);
+	g_test_add_func("/objloader/vertices/parameters",
+			test_parameter_points);
 	return g_test_run();
 }
 
