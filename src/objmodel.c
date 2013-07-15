@@ -8,7 +8,8 @@ size_t obj_n_geometric_vertices(obj_model *model) {
 
 obj_model *obj_model_new() {
 	obj_model *model = malloc(sizeof(obj_model));
-	model->geometric_vertices = g_array_new(FALSE, FALSE, sizeof(vertex));
+	model->geometric_vertices = g_array_new(FALSE, FALSE,
+			sizeof(geometric_vertex));
 	return model;
 }
 

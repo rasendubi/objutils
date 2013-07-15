@@ -1,7 +1,7 @@
 #include "../src/objloader.c"
 #include <stdio.h>
 
-void assert_vertex_eq(const vertex v1, const vertex v2) {
+void assert_vertex_eq(const geometric_vertex v1, const geometric_vertex v2) {
 	g_assert_cmpfloat(v1.x, ==, v2.x);
 	g_assert_cmpfloat(v1.y, ==, v2.y);
 	g_assert_cmpfloat(v1.z, ==, v2.z);
@@ -15,7 +15,7 @@ void test_geometric_vertices(void) {
 		" \t v \t 2.01 5.06   -17.3 14\t  ",
 		"v  2e-05 3.4e15  5.0e-007"
 	};
-	vertex answer[] = {
+	geometric_vertex answer[] = {
 		{ 1.02, 3, 5.06, 1.0 },
 		{ -1.02, 4.15, 7.20, 10.5 },
 		{ 2.01, 5.06, -17.3, 14 },

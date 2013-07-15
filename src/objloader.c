@@ -78,14 +78,14 @@ static bool handle_geometric_vertex(obj_model *model, gchar **tokens) {
 		return false;
 	}
 
-	vertex vert = (vertex){ .w = 1.0 };
-	vert.x = strtod(tokens[1], NULL);
-	vert.y = strtod(tokens[2], NULL);
-	vert.z = strtod(tokens[3], NULL);
+	geometric_vertex vertex = (geometric_vertex){ .w = 1.0 };
+	vertex.x = strtod(tokens[1], NULL);
+	vertex.y = strtod(tokens[2], NULL);
+	vertex.z = strtod(tokens[3], NULL);
 	if (len == 5)
-		vert.w = strtod(tokens[4], NULL);
+		vertex.w = strtod(tokens[4], NULL);
 
-	g_array_append_val(model->geometric_vertices, vert);
+	g_array_append_val(model->geometric_vertices, vertex);
 
 	return true;
 }

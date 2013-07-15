@@ -3,16 +3,16 @@
 
 #include <glib.h>
 
-typedef struct vertex {
+typedef struct geometric_vertex {
 	double x, y, z, w;
-} vertex;
+} geometric_vertex;
 
 typedef struct obj_model {
 	GArray *geometric_vertices;
 } obj_model;
 
 #define obj_geometric_vertex(model, i) \
-	g_array_index((model)->geometric_vertices, vertex, i)
+	g_array_index((model)->geometric_vertices, geometric_vertex, i)
 extern size_t obj_n_geometric_vertices(obj_model *);
 
 extern obj_model *obj_model_new();
