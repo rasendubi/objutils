@@ -10,6 +10,7 @@
 static bool parse_line(obj_model *model, const gchar *line);
 static bool handle_geometric_vertex(obj_model *model, gchar **tokens);
 
+static size_t strv_len(gchar **tokens);
 static void strv_remove_empty(gchar **tokens);
 
 obj_model *load_obj(const char *path) {
@@ -60,12 +61,10 @@ static bool parse_line(obj_model *model, const gchar *line) {
 }
 
 static bool handle_geometric_vertex(obj_model *model, gchar **tokens) {
-	int len = 0;
-	for (gchar **token = tokens; *token; ++token)
-		++len;
+	size_t len = strv_len(tokens);
 
 	if (len < 4 || len > 5) {
-		fprintf(stderr, "Can't handle 'v' with %i args\n",
+		fprintf(stderr, "Can't handle 'v' with %zu args\n",
 				len - 1);
 		return false;
 	}
@@ -80,6 +79,13 @@ static bool handle_geometric_vertex(obj_model *model, gchar **tokens) {
 	g_array_append_val(model->geometric_vertices, vert);
 
 	return true;
+}
+
+static size_t strv_len(gchar **tokens) {
+	size_t len = 0;
+	for (gchar **token = tokens; *token; ++token)
+		++len;
+	return len;
 }
 
 static void strv_remove_empty(gchar **tokens) {
