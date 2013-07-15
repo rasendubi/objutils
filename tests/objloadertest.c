@@ -23,6 +23,13 @@ void assert_vertex_normal_eq(const vertex_normal v1,
 	g_assert_cmpfloat(v1.k, ==, v2.k);
 }
 
+void assert_parse(obj_model *model,
+		char *to_parse[], int n_to_parse) {
+	for (int i = 0; i < n_to_parse; ++i) {
+		g_assert(parse_line(model, to_parse[i]));
+	}
+}
+
 void test_geometric_vertices(void) {
 	char *test_data[] = {
 		"v 1.02 3 5.06",
@@ -40,9 +47,7 @@ void test_geometric_vertices(void) {
 
 	obj_model *model = obj_model_new();
 
-	for (int i = 0; i < N; ++i) {
-		g_assert(parse_line(model, test_data[i]));
-	}
+	assert_parse(model, test_data, N);
 
 	g_assert(!parse_line(model, "v 1 2"));
 	g_assert(!parse_line(model, "v 1 2 3 4 5"));
@@ -71,9 +76,7 @@ void test_texture_vertices(void) {
 
 	obj_model *model = obj_model_new();
 
-	for (int i = 0; i < N; ++i) {
-		g_assert(parse_line(model, test_data[i]));
-	}
+	assert_parse(model, test_data, N);
 
 	g_assert(!parse_line(model, "vt  "));
 	g_assert(!parse_line(model, "vt 1 2 3 4"));
@@ -101,9 +104,7 @@ void test_vertex_normals(void) {
 
 	obj_model *model = obj_model_new();
 
-	for (int i = 0; i < N; ++i) {
-		g_assert(parse_line(model, test_data[i]));
-	}
+	assert_parse(model, test_data, N);
 
 	g_assert(!parse_line(model, "vn 1 2.3"));
 	g_assert(!parse_line(model, "vn 1"));
