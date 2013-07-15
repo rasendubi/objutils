@@ -1,33 +1,43 @@
 #include "../src/objloader.c"
-#include <stdio.h>
 
-void assert_vertex_eq(const geometric_vertex v1, const geometric_vertex v2) {
+#define array_size(arr) (sizeof(arr)/sizeof((arr)[0]))
+
+/**
+ * Asserts, that all strings are consumed by parse_line
+ * \param model obj_model*
+ * \param tests char *[] should be statically sized array
+ */
+#define assert_parse(model, tests) \
+	__assert_parse(model, tests, array_size(tests))
+
+void __assert_parse(obj_model *model,
+		char *tests[], int n_tests) {
+	for (int i = 0; i < n_tests; ++i) {
+		g_assert(parse_line(model, tests[i]));
+	}
+}
+
+/**
+ * Asserts that all strings are rejected by parse_line
+ * \param model obj_model*
+ * \param tests char *[] should be statically sized array
+ */
+#define assert_parse_fail(model, tests) \
+	__assert_parse_fail(model, tests, array_size(tests))
+
+void __assert_parse_fail(obj_model *model,
+		char *tests[], int n_tests) {
+	for (int i = 0; i < n_tests; ++i) {
+		g_assert(!parse_line(model, tests[i]));
+	}
+}
+
+void assert_geometric_vertex_equal(const geometric_vertex v1,
+		const geometric_vertex v2) {
 	g_assert_cmpfloat(v1.x, ==, v2.x);
 	g_assert_cmpfloat(v1.y, ==, v2.y);
 	g_assert_cmpfloat(v1.z, ==, v2.z);
 	g_assert_cmpfloat(v1.w, ==, v2.w);
-}
-
-void assert_texture_vertex_eq(const texture_vertex v1,
-		const texture_vertex v2) {
-	g_assert_cmpfloat(v1.u, ==, v2.u);
-	g_assert_cmpfloat(v1.v, ==, v2.v);
-	g_assert_cmpfloat(v1.w, ==, v2.w);
-
-}
-
-void assert_vertex_normal_eq(const vertex_normal v1,
-		const vertex_normal v2) {
-	g_assert_cmpfloat(v1.i, ==, v2.i);
-	g_assert_cmpfloat(v1.j, ==, v2.j);
-	g_assert_cmpfloat(v1.k, ==, v2.k);
-}
-
-void assert_parse(obj_model *model,
-		char *to_parse[], int n_to_parse) {
-	for (int i = 0; i < n_to_parse; ++i) {
-		g_assert(parse_line(model, to_parse[i]));
-	}
 }
 
 void test_geometric_vertices(void) {
@@ -43,22 +53,34 @@ void test_geometric_vertices(void) {
 		{ 2.01, 5.06, -17.3, 14 },
 		{ 2e-5, 3.4e15, 5.0e-7, 1.0 }
 	};
-	const unsigned int N = sizeof(test_data)/sizeof(test_data[0]);
+
+	char *bad_data[] = {
+		"v 1 2",
+		"v 1 2 3 4 5"
+	};
 
 	obj_model *model = obj_model_new();
 
-	assert_parse(model, test_data, N);
+	assert_parse(model, test_data);
+	assert_parse_fail(model, bad_data);
 
-	g_assert(!parse_line(model, "v 1 2"));
-	g_assert(!parse_line(model, "v 1 2 3 4 5"));
+	g_assert_cmpuint(obj_n_geometric_vertices(model), ==,
+			array_size(answer));
 
-	g_assert_cmpuint(obj_n_geometric_vertices(model), ==, N);
-
-	for (int i = 0; i < N; ++i) {
-		assert_vertex_eq(obj_geometric_vertex(model, i), answer[i]);
+	for (int i = 0; i < array_size(answer); ++i) {
+		assert_geometric_vertex_equal(obj_geometric_vertex(model, i),
+				answer[i]);
 	}
 
 	obj_model_free(model);
+}
+
+void assert_texture_vertex_equal(const texture_vertex v1,
+		const texture_vertex v2) {
+	g_assert_cmpfloat(v1.u, ==, v2.u);
+	g_assert_cmpfloat(v1.v, ==, v2.v);
+	g_assert_cmpfloat(v1.w, ==, v2.w);
+
 }
 
 void test_texture_vertices(void) {
@@ -72,23 +94,32 @@ void test_texture_vertices(void) {
 		{ 0.0, 1.6e-30, 0 },
 		{ 0.1, 0, 0 }
 	};
-	const unsigned int N = sizeof(test_data)/sizeof(test_data[0]);
+
+	char *bad_data[] = {
+		"vt  ",
+		"vt 1 2 3 4"
+	};
 
 	obj_model *model = obj_model_new();
 
-	assert_parse(model, test_data, N);
+	assert_parse(model, test_data);
+	assert_parse_fail(model, bad_data);
 
-	g_assert(!parse_line(model, "vt  "));
-	g_assert(!parse_line(model, "vt 1 2 3 4"));
-
-	g_assert_cmpuint(obj_n_texture_vertices(model), ==, N);
-
-	for (int i = 0; i < N; ++i) {
-		assert_texture_vertex_eq(obj_texture_vertex(model, i),
+	g_assert_cmpuint(obj_n_texture_vertices(model), ==,
+			array_size(answer));
+	for (int i = 0; i < array_size(answer); ++i) {
+		assert_texture_vertex_equal(obj_texture_vertex(model, i),
 				answer[i]);
 	}
 
 	obj_model_free(model);
+}
+
+void assert_vertex_normal_equal(const vertex_normal v1,
+		const vertex_normal v2) {
+	g_assert_cmpfloat(v1.i, ==, v2.i);
+	g_assert_cmpfloat(v1.j, ==, v2.j);
+	g_assert_cmpfloat(v1.k, ==, v2.k);
 }
 
 void test_vertex_normals(void) {
@@ -100,21 +131,23 @@ void test_vertex_normals(void) {
 		{ 1.2, 3.4, 5.6 },
 		{ 4, 5, -6e-017 }
 	};
-	const unsigned int N = sizeof(test_data)/sizeof(test_data[0]);
+
+	char *bad_data[] = {
+		"vn 1 2.3",
+		"vn 1",
+		"vn",
+		"vn 4 5 6 7"
+	};
 
 	obj_model *model = obj_model_new();
 
-	assert_parse(model, test_data, N);
+	assert_parse(model, test_data);
+	assert_parse_fail(model, bad_data);
 
-	g_assert(!parse_line(model, "vn 1 2.3"));
-	g_assert(!parse_line(model, "vn 1"));
-	g_assert(!parse_line(model, "vn"));
-	g_assert(!parse_line(model, "vn 4 5 6 7"));
-
-	g_assert_cmpuint(obj_n_vertex_normals(model), ==, N);
-
-	for (int i = 0; i < N; ++i) {
-		assert_vertex_normal_eq(obj_vertex_normal(model, i),
+	g_assert_cmpuint(obj_n_vertex_normals(model), ==,
+			array_size(answer));
+	for (int i = 0; i < array_size(answer); ++i) {
+		assert_vertex_normal_equal(obj_vertex_normal(model, i),
 				answer[i]);
 	}
 
