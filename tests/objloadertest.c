@@ -8,6 +8,14 @@ void assert_vertex_eq(const geometric_vertex v1, const geometric_vertex v2) {
 	g_assert_cmpfloat(v1.w, ==, v2.w);
 }
 
+void assert_texture_vertex_eq(const texture_vertex v1,
+		const texture_vertex v2) {
+	g_assert_cmpfloat(v1.u, ==, v2.u);
+	g_assert_cmpfloat(v1.v, ==, v2.v);
+	g_assert_cmpfloat(v1.w, ==, v2.w);
+
+}
+
 void test_geometric_vertices(void) {
 	char *test_data[] = {
 		"v 1.02 3 5.06",
@@ -41,10 +49,44 @@ void test_geometric_vertices(void) {
 	obj_model_free(model);
 }
 
+void test_texture_vertices(void) {
+	char *test_data[] = {
+		"vt 1.0 4.4 5.0",
+		" vt  0.0  \t 1.6e-30\t ",
+		"vt 0.1"
+	};
+	texture_vertex answer[] = {
+		{ 1.0, 4.4, 5.0 },
+		{ 0.0, 1.6e-30, 0 },
+		{ 0.1, 0, 0 }
+	};
+	const unsigned int N = sizeof(test_data)/sizeof(test_data[0]);
+
+	obj_model *model = obj_model_new();
+
+	for (int i = 0; i < N; ++i) {
+		g_assert(parse_line(model, test_data[i]));
+	}
+
+	g_assert(!parse_line(model, "vt  "));
+	g_assert(!parse_line(model, "vt 1 2 3 4"));
+
+	g_assert_cmpuint(obj_n_texture_vertices(model), ==, N);
+
+	for (int i = 0; i < N; ++i) {
+		assert_texture_vertex_eq(obj_texture_vertex(model, i),
+				answer[i]);
+	}
+
+	obj_model_free(model);
+}
+
 int main(int argc, char *argv[]) {
 	g_test_init(&argc, &argv, NULL);
 	g_test_add_func("/objloader/vertices/geometric",
 			test_geometric_vertices);
+	g_test_add_func("/objloader/vertices/texture",
+			test_texture_vertices);
 	return g_test_run();
 }
 

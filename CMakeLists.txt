@@ -33,4 +33,5 @@ macro(add_glib_test EXE TEST_NAME)
 endmacro(add_glib_test)
 
 add_glib_test(testobjloader /objloader/vertices/geometric)
+add_glib_test(testobjloader /objloader/vertices/texture)
 
