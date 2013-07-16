@@ -68,7 +68,7 @@ void test_geometric_vertices(void) {
 			array_size(answer));
 
 	for (int i = 0; i < array_size(answer); ++i) {
-		assert_geometric_vertex_equal(obj_geometric_vertex(model, i),
+		assert_geometric_vertex_equal(obj_geometric_vertex(model, i+1),
 				answer[i]);
 	}
 
@@ -108,7 +108,7 @@ void test_texture_vertices(void) {
 	g_assert_cmpuint(obj_n_texture_vertices(model), ==,
 			array_size(answer));
 	for (int i = 0; i < array_size(answer); ++i) {
-		assert_texture_vertex_equal(obj_texture_vertex(model, i),
+		assert_texture_vertex_equal(obj_texture_vertex(model, i+1),
 				answer[i]);
 	}
 
@@ -147,7 +147,7 @@ void test_vertex_normals(void) {
 	g_assert_cmpuint(obj_n_vertex_normals(model), ==,
 			array_size(answer));
 	for (int i = 0; i < array_size(answer); ++i) {
-		assert_vertex_normal_equal(obj_vertex_normal(model, i),
+		assert_vertex_normal_equal(obj_vertex_normal(model, i+1),
 				answer[i]);
 	}
 
@@ -185,7 +185,7 @@ void test_parameter_points(void) {
 	g_assert_cmpuint(obj_n_parameter_points(model), ==,
 			array_size(answer));
 	for (int i = 0; i < array_size(answer); ++i) {
-		assert_parameter_point_equal(obj_parameter_point(model, i),
+		assert_parameter_point_equal(obj_parameter_point(model, i+1),
 				answer[i]);
 	}
 
