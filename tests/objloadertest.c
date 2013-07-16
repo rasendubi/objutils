@@ -288,7 +288,6 @@ void test_faces(void) {
 
 	for (int i = 0; i < array_size(answer); ++i) {
 		assert_face_equal(obj_face(model, i), answer[i]);
-		printf("Pass %i\n",i);
 	}
 
 	obj_model_free(model);

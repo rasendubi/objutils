@@ -63,10 +63,8 @@ static bool parse_line(obj_model *model, const gchar *line) {
 
 	gchar *command = tokens[0];
 
-	if (!command)
-		ret = true; // Empty line
-	else if (command[0] == '#')
-		ret = true; // This is comment, do nothing
+	if (!command || command[0] == '#')
+		ret = true;
 	else {
 		for (size_t i = 0; i < n_handlers; ++i)
 			if (strcmp(handlers[i].command, command) == 0) {
