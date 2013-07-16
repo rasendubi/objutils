@@ -36,4 +36,5 @@ add_glib_test(testobjloader /objloader/vertices/geometric)
 add_glib_test(testobjloader /objloader/vertices/texture)
 add_glib_test(testobjloader /objloader/vertices/normals)
 add_glib_test(testobjloader /objloader/vertices/parameters)
+add_glib_test(testobjloader /objloader/faces)
 

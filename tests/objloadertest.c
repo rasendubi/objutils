@@ -192,6 +192,108 @@ void test_parameter_points(void) {
 	obj_model_free(model);
 }
 
+void assert_face_equal(const obj_face f1, const obj_face f2) {
+	g_assert_cmpuint(f1.len, ==, f2.len);
+	for (int i = 0; i < f1.len; ++i) {
+		g_assert_cmpuint(f1.points[i].iv, ==,
+				f2.points[i].iv);
+		g_assert_cmpuint(f1.points[i].ivt, ==,
+				f2.points[i].ivt);
+		g_assert_cmpuint(f1.points[i].ivn, ==,
+				f2.points[i].ivn);
+	}
+}
+
+void test_faces(void) {
+	char *test_data[] = {
+		"v 1 2 0",
+		"v 2 1 0",
+		"v 2 -1 0",
+		"v 1 -2 0",
+		"v -1 -2 0",
+		"v -2 -1 0",
+		"v -2 1 0",
+		"v -1 2 0",
+
+		"vt 1",
+		"vt 2",
+		"vt 3",
+		"vt 4",
+		"vt 5",
+		"vt 6",
+		"vt 7",
+		"vt 8",
+
+		"vn 0 0 1",
+		"vn 0 0 1",
+		"vn 0 0 1",
+		"vn 0 0 1",
+		"vn 0 0 1",
+		"vn 0 0 1",
+		"vn 0 0 1",
+		"vn 0 0 1",
+
+		"f 1 2 5",
+		"f 1 3 -4 -2",
+		"f 1 -7 3 -5 5 -3 7 8",
+
+		"f 1/1 2/-7 5/-4",
+		"f 1/-8 3/3 -4/5 -2/-2",
+		"f 1/8 -7/7 3/-3 -5/-4 5/-5 -3/-6 7/2 8/-8",
+
+		"f 1/1/8 2/-7/-2 5/-4/4",
+		"f 1/-8/8 3/3/-3 -4/5/-5 -2/-2/-7",
+		"f 1/8/-8 -7/7/2 3/-3/3 -5/-4/4 5/-5/-4 -3/-6/6 7/2/7 8/-8/8",
+
+		"f 1//8 2//-2 5//4",
+		"f 1//8 3//-3 -4//-5 -2//-7",
+		"f 1//-8 -7//2 3//3 -5//4 5//-4 -3//6 7//7 8//8"
+	};
+	obj_face answer[] = {
+		{ (obj_face_point[]){{1}, {2}, {5}}, 3 },
+		{ (obj_face_point[]){{1}, {3}, {5}, {7}}, 4 },
+		{ (obj_face_point[]){{1}, {2}, {3}, {4},
+					    {5}, {6}, {7}, {8}}, 8 },
+
+		{ (obj_face_point[]){{1,1}, {2,2}, {5,5}}, 3 },
+		{ (obj_face_point[]){{1,1}, {3,3}, {5,5}, {7,7}}, 4 },
+		{ (obj_face_point[]){{1,8}, {2,7}, {3,6}, {4,5}, {5,4},
+						{6,3}, {7,2}, {8,1}}, 8 },
+
+		{ (obj_face_point[]){{1,1,8}, {2,2,7}, {5,5,4}}, 3 },
+		{ (obj_face_point[]){{1,1,8}, {3,3,6}, {5,5,4}, {7,7,2}}, 4 },
+		{ (obj_face_point[]){{1,8,1}, {2,7,2}, {3,6,3}, {4,5,4}, {5,4,5},
+						{6,3,6}, {7,2,7}, {8,1,8}}, 8 },
+
+		{ (obj_face_point[]){{1,0,8}, {2,0,7}, {5,0,4}}, 3 },
+		{ (obj_face_point[]){{1,0,8}, {3,0,6}, {5,0,4}, {7,0,2}}, 4 },
+		{ (obj_face_point[]){{1,0,1}, {2,0,2}, {3,0,3}, {4,0,4}, {5,0,5},
+						{6,0,6}, {7,0,7}, {8,0,8}}, 8 },
+	};
+
+	char *bad_data[] = {
+		"f 1 2",
+		"f 1 2 3/4",
+		"f 1/// 2 3",
+		"f 1/1/1/1 2 3",
+		"f /1/2 2 3"
+	};
+
+	obj_model *model = obj_model_new();
+
+	assert_parse(model, test_data);
+	assert_parse_fail(model, bad_data);
+
+	g_assert_cmpuint(obj_n_faces(model), ==, array_size(answer));
+
+	for (int i = 0; i < array_size(answer); ++i) {
+		assert_face_equal(obj_face(model, i), answer[i]);
+		printf("Pass %i\n",i);
+	}
+
+	obj_model_free(model);
+}
+
 int main(int argc, char *argv[]) {
 	g_test_init(&argc, &argv, NULL);
 	g_test_add_func("/objloader/vertices/geometric",
@@ -202,6 +304,8 @@ int main(int argc, char *argv[]) {
 			test_vertex_normals);
 	g_test_add_func("/objloader/vertices/parameters",
 			test_parameter_points);
+	g_test_add_func("/objloader/faces",
+			test_faces);
 	return g_test_run();
 }
 

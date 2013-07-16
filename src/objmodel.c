@@ -12,6 +12,8 @@ obj_model *obj_model_new() {
 			sizeof(vertex_normal));
 	model->parameter_points = g_array_new(FALSE, FALSE,
 			sizeof(parameter_point));
+	model->faces = g_array_new(FALSE, FALSE,
+			sizeof(obj_face));
 	return model;
 }
 
@@ -20,6 +22,7 @@ void obj_model_free(obj_model *model) {
 	g_array_free(model->texture_vertices, TRUE);
 	g_array_free(model->vertex_normals, TRUE);
 	g_array_free(model->parameter_points, TRUE);
+	g_array_free(model->faces, TRUE);
 	free(model);
 }
 

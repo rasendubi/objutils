@@ -19,11 +19,21 @@ typedef struct parameter_point {
 	double u, v, w;
 } parameter_point;
 
+typedef struct obj_face_point {
+	long iv, ivt, ivn;
+} obj_face_point;
+
+typedef struct obj_face {
+	obj_face_point *points;
+	size_t len;
+} obj_face;
+
 typedef struct obj_model {
 	GArray *geometric_vertices;
 	GArray *texture_vertices;
 	GArray *vertex_normals;
 	GArray *parameter_points;
+	GArray *faces;
 } obj_model;
 
 #define obj_geometric_vertex(model, i) \
@@ -48,6 +58,12 @@ static inline size_t obj_n_vertex_normals(obj_model *model) {
 	g_array_index((model)->parameter_points, parameter_point, (i) - 1)
 static inline size_t obj_n_parameter_points(obj_model *model) {
 	return model->parameter_points->len;
+}
+
+#define obj_face(model, i) \
+	g_array_index((model)->faces, obj_face, i)
+static inline size_t obj_n_faces(obj_model *model) {
+	return model->faces->len;
 }
 
 extern obj_model *obj_model_new();

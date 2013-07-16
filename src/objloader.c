@@ -14,6 +14,8 @@ static bool handle_texture_vertex(obj_model *model, gchar **tokens);
 static bool handle_vertex_normal(obj_model *model, gchar **tokens);
 static bool handle_parameter_point(obj_model *model, gchar **tokens);
 
+static bool handle_faces(obj_model *model, gchar **tokens);
+
 static size_t strv_len(gchar **tokens);
 static void strv_remove_empty(gchar **tokens);
 
@@ -49,7 +51,8 @@ static bool parse_line(obj_model *model, const gchar *line) {
 		"v",  handle_geometric_vertex,
 		"vt", handle_texture_vertex,
 		"vn", handle_vertex_normal,
-		"vp", handle_parameter_point
+		"vp", handle_parameter_point,
+		"f",  handle_faces
 	};
 	static const size_t n_handlers = sizeof(handlers)/sizeof(handlers[0]);
 
@@ -150,6 +153,69 @@ static bool handle_parameter_point(obj_model *model, gchar **tokens) {
 		param.w = strtod(tokens[3], NULL);
 
 	g_array_append_val(model->parameter_points, param);
+
+	return true;
+}
+
+static inline long normalize(long index, long base) {
+	return index >= 0 ? index : base + index + 1;
+}
+
+static inline bool is_str_empty(const char *str) {
+	return str[0] == '\0';
+}
+
+static bool handle_faces(obj_model *model, gchar **tokens) {
+	size_t n_args = strv_len(tokens) - 1;
+	if (n_args < 3) {
+		fprintf(stderr, "Can't handle 'f' with %zu args\n",
+				n_args);
+		return false;
+	}
+
+	obj_face face = {
+		.points = malloc(sizeof(obj_face_point)*n_args),
+		.len = n_args
+	};
+
+	bool allow_texture = true, allow_normal = true;
+
+	for (int i = 0; i < n_args; ++i) {
+		gchar **vertices = g_strsplit(tokens[i+1], "/", 0);
+		size_t n_vertices = strv_len(vertices);
+
+		bool is_geometric = !is_str_empty(vertices[0]);
+		bool is_texture = n_vertices > 1 && !is_str_empty(vertices[1]);
+		bool is_normal  = n_vertices > 2 && !is_str_empty(vertices[2]);
+
+		if (i == 0) {
+			allow_texture = is_texture;
+			allow_normal = is_normal;
+		}
+
+		if (n_vertices > 3 || !is_geometric ||
+				allow_texture != is_texture ||
+				allow_normal != is_normal) {
+			fprintf(stderr, "Can't handle point in 'f'\n");
+			free(face.points);
+			g_strfreev(vertices);
+			return false;
+		}
+
+		face.points[i] = (obj_face_point){ .iv = 0, .ivt = 0, .ivn = 0 };
+		face.points[i].iv = normalize(strtol(vertices[0], NULL, 10),
+				obj_n_geometric_vertices(model));
+		if (is_texture)
+			face.points[i].ivt = normalize(strtol(vertices[1], NULL, 10),
+					obj_n_texture_vertices(model));
+		if (is_normal)
+			face.points[i].ivn = normalize(strtol(vertices[2], NULL, 10),
+					obj_n_vertex_normals(model));
+
+		g_strfreev(vertices);
+	}
+
+	g_array_append_val(model->faces, face);
 
 	return true;
 }
