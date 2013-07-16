@@ -22,6 +22,10 @@ void obj_model_free(obj_model *model) {
 	g_array_free(model->texture_vertices, TRUE);
 	g_array_free(model->vertex_normals, TRUE);
 	g_array_free(model->parameter_points, TRUE);
+
+	for (int i = 0; i < obj_n_faces(model); ++i) {
+		free(obj_face(model, i).points);
+	}
 	g_array_free(model->faces, TRUE);
 	free(model);
 }
