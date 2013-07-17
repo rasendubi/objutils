@@ -48,8 +48,6 @@ static bool handle_faces(obj_model *, gchar **, size_t);
  *		have to be freed with strings_array_free
  */
 static strings_array *split_spaces_inplace(gchar *line);
-static size_t strv_len(gchar **tokens);
-static size_t strv_remove_empty(gchar **tokens);
 
 obj_model *load_obj(const char *path) {
 	gchar *contents;
@@ -65,9 +63,8 @@ obj_model *load_obj(const char *path) {
 
 	obj_model *model = obj_model_new();
 
-	bool ret = true;
 	for (gchar **curline = lines; *curline; ++curline) {
-		ret = parse_line(model, *curline);
+		parse_line(model, *curline);
 	}
 
 	g_strfreev(lines);
@@ -80,11 +77,11 @@ static bool parse_line(obj_model *model, gchar *line) {
 		char *command;
 		bool (*handler)(obj_model *, gchar **, size_t);
 	} handlers[] = {
-		"v",  handle_geometric_vertex,
-		"vt", handle_texture_vertex,
-		"vn", handle_vertex_normal,
-		"vp", handle_parameter_point,
-		"f",  handle_faces
+		{ "v",  handle_geometric_vertex },
+		{ "vt", handle_texture_vertex },
+		{ "vn", handle_vertex_normal },
+		{ "vp", handle_parameter_point },
+		{ "f",  handle_faces }
 	};
 	static const size_t n_handlers = sizeof(handlers)/sizeof(handlers[0]);
 
@@ -213,7 +210,7 @@ static bool handle_faces(obj_model *model, gchar **tokens,
 
 	for (int i = 0; i < n_args; ++i) {
 		gchar **vertices = g_strsplit(tokens[i+1], "/", 0);
-		size_t n_vertices = strv_len(vertices);
+		size_t n_vertices = g_strv_length(vertices);
 
 		bool is_geometric = !is_str_empty(vertices[0]);
 		bool is_texture = n_vertices > 1 && !is_str_empty(vertices[1]);
@@ -267,24 +264,5 @@ static strings_array *split_spaces_inplace(gchar *line) {
 		}
 	}
 	return result;
-}
-
-static size_t strv_len(gchar **tokens) {
-	size_t len = 0;
-	for (gchar **token = tokens; *token; ++token)
-		++len;
-	return len;
-}
-
-static size_t strv_remove_empty(gchar **tokens) {
-	int new_pos = 0;
-
-	for (gchar **token = tokens; *token; ++token)
-		if (**token)
-			tokens[new_pos++] = *token;
-		else
-			free(*token);
-	tokens[new_pos] = NULL;
-	return new_pos;
 }
 
