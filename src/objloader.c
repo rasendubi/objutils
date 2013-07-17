@@ -7,7 +7,32 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-static bool parse_line(obj_model *model, const gchar *line);
+typedef struct strings_array {
+	gchar **strings;
+	unsigned count, capacity;
+} strings_array;
+static inline strings_array *strings_array_new() {
+	const unsigned initial_capacity = 8;
+	strings_array *arr = malloc(sizeof(strings_array));
+	arr->strings = malloc(sizeof(gchar**)*initial_capacity);
+	arr->capacity = initial_capacity;
+	arr->count = 0;
+	return arr;
+}
+static inline void strings_array_add(strings_array *array, gchar *str) {
+	if (array->count == array->capacity) {
+		array->capacity *= 2;
+		array->strings = realloc(array->strings,
+				array->capacity*sizeof(gchar**));
+	}
+	array->strings[array->count++] = str;
+}
+static inline void strings_array_free(strings_array *arr) {
+	free(arr->strings);
+	free(arr);
+}
+
+static bool parse_line(obj_model *model, gchar *line);
 
 static bool handle_geometric_vertex(obj_model *, gchar **, size_t);
 static bool handle_texture_vertex(obj_model *, gchar **, size_t);
@@ -16,6 +41,13 @@ static bool handle_parameter_point(obj_model *, gchar **, size_t);
 
 static bool handle_faces(obj_model *, gchar **, size_t);
 
+/**
+ * Splits string on spaces and tabs in-place
+ * \param line line to split
+ * \return returns pointer to dynamically allocated strings_array,
+ *		have to be freed with strings_array_free
+ */
+static strings_array *split_spaces_inplace(gchar *line);
 static size_t strv_len(gchar **tokens);
 static size_t strv_remove_empty(gchar **tokens);
 
@@ -43,7 +75,7 @@ obj_model *load_obj(const char *path) {
 	return model;
 }
 
-static bool parse_line(obj_model *model, const gchar *line) {
+static bool parse_line(obj_model *model, gchar *line) {
 	static const struct {
 		char *command;
 		bool (*handler)(obj_model *, gchar **, size_t);
@@ -56,8 +88,9 @@ static bool parse_line(obj_model *model, const gchar *line) {
 	};
 	static const size_t n_handlers = sizeof(handlers)/sizeof(handlers[0]);
 
-	gchar **tokens = g_strsplit_set(line, " \t", 0);
-	size_t n_args = strv_remove_empty(tokens) - 1;
+	strings_array *token_array = split_spaces_inplace(line);
+	gchar **tokens = token_array->strings;
+	size_t n_args = token_array->count - 1;
 
 	bool ret = false;
 
@@ -73,7 +106,7 @@ static bool parse_line(obj_model *model, const gchar *line) {
 			}
 	}
 
-	g_strfreev(tokens);
+	strings_array_free(token_array);
 	return ret;
 }
 
@@ -216,6 +249,24 @@ static bool handle_faces(obj_model *model, gchar **tokens,
 	g_array_append_val(model->faces, face);
 
 	return true;
+}
+
+static strings_array *split_spaces_inplace(gchar *line) {
+	strings_array *result = strings_array_new();
+	for (gchar *c = line; *c;) {
+		while (*c == ' ' || *c == '\t')
+			++c;
+		if (*c) {
+			strings_array_add(result, c);
+			do {
+				++c;
+			} while (*c && *c != ' ' && *c != '\t');
+			if (*c == '\0') break;
+			*c = '\0';
+			++c;
+		}
+	}
+	return result;
 }
 
 static size_t strv_len(gchar **tokens) {

@@ -1,6 +1,9 @@
 #include "../src/objloader.c"
 
 #define array_size(arr) (sizeof(arr)/sizeof((arr)[0]))
+#define assertion_message(...) \
+	g_assertion_message_expr(G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, \
+			g_strjoin("", __VA_ARGS__, NULL) )
 
 /**
  * Asserts, that all strings are consumed by parse_line
@@ -13,7 +16,13 @@
 void __assert_parse(obj_model *model,
 		char *tests[], int n_tests) {
 	for (int i = 0; i < n_tests; ++i) {
-		g_assert(parse_line(model, tests[i]));
+		char *test = g_strdup(tests[i]);
+		bool good = parse_line(model, test);
+		if (!good) {
+			assertion_message("Failed to parse line: \"",
+					tests[i], "\"");
+		}
+		free(test);
 	}
 }
 
@@ -28,7 +37,9 @@ void __assert_parse(obj_model *model,
 void __assert_parse_fail(obj_model *model,
 		char *tests[], int n_tests) {
 	for (int i = 0; i < n_tests; ++i) {
-		g_assert(!parse_line(model, tests[i]));
+		char *test = g_strdup(tests[i]);
+		g_assert(!parse_line(model, test));
+		free(test);
 	}
 }
 
