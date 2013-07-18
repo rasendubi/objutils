@@ -115,7 +115,7 @@ static bool handle_geometric_vertex(obj_model *model, gchar **tokens,
 		return false;
 	}
 
-	geometric_vertex vertex = (geometric_vertex){ .w = 1.0 };
+	geometric_vertex vertex = { .w = 1.0 };
 	vertex.x = strtod(tokens[1], NULL);
 	vertex.y = strtod(tokens[2], NULL);
 	vertex.z = strtod(tokens[3], NULL);
@@ -135,7 +135,7 @@ static bool handle_texture_vertex(obj_model *model, gchar **tokens,
 		return false;
 	}
 
-	texture_vertex vertex = (texture_vertex){};
+	texture_vertex vertex = { .v = 0.0, .w = 0.0 };
 
 	vertex.u = strtod(tokens[1], NULL);
 	if (n_args > 1)

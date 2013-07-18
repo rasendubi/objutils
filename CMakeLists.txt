@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-set(CMAKE_C_FLAGS "-Wall ${CMAKE_C_FLAGS} -std=c11")
+set(CMAKE_C_FLAGS "-Wall -pedantic ${CMAKE_C_FLAGS} -std=c11")
 
 find_package(PkgConfig REQUIRED)
 pkg_search_module(GLIB2 REQUIRED glib-2.0)
