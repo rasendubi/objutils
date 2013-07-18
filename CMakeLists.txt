@@ -3,8 +3,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 set(CMAKE_C_FLAGS "-Wall -pedantic ${CMAKE_C_FLAGS} -std=c11")
 
 find_package(PkgConfig REQUIRED)
+find_package(OpenGL REQUIRED)
+find_package(GLUT REQUIRED)
 pkg_search_module(GLIB2 REQUIRED glib-2.0)
-include_directories(${GLIB2_INCLUDE_DIRS})
+include_directories(${GLIB2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR}
+	${GLUT_INCLUDE_DIRS})
 
 set(objutils_SRC 
 	src/objloader.c
@@ -25,6 +28,12 @@ set(testload_SRC
 )
 add_executable(testload ${testload_SRC})
 target_link_libraries(testload objutils)
+
+set(objrender_SRC
+	src/objrender.c
+)
+add_executable(objrender ${objrender_SRC})
+target_link_libraries(objrender objutils ${OPENGL_LIBRARY} ${GLUT_LIBRARY})
 
 enable_testing()
 
